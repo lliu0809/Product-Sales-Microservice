@@ -1,2 +1,2 @@
 # high-concurrency-programming
-Microservice based on Spring Boot for handling high concurrency product sales situations
+Microservice for product sales based on Spring Boot for handling high concurrency situations
