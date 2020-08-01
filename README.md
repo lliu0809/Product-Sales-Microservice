@@ -23,5 +23,5 @@ Product sales microservice written in Java with distributed session to handle hi
 
 
 ## Reference
-imooc course: https://coding.imooc.com/class/168.html
-Github Repo: https://github.com/qiurunze123/miaosha
+* imooc course: https://coding.imooc.com/class/168.html
+* Github Repo: https://github.com/qiurunze123/miaosha
