@@ -2,7 +2,7 @@
 Product sales microservice written in Java with distributed session to handle high concurrency situations, optimizing by caching & asynchronous programming.
 
 
-## Technical stack
+## Environments
 ### Back-end
 * Microservice framework: [Spring Boot](https://spring.io)
 * Java persistence framework for database access: [MyBatis](https://blog.mybatis.org)
@@ -20,6 +20,12 @@ Product sales microservice written in Java with distributed session to handle hi
 * Load test & performance measuring: [JMeter](https://jmeter.apache.org)
 * Horizontal extension: [NGINX](https://www.nginx.com)
 
+
+## Designs & thoughts
+* Microservice design pattern: *controller* calls *service*, *service* calls *dao*;
+* Implement a **Result** class to encapsulate basic information;
+* Implement a **Key** class to get the key for accessing database;
+* For serialization, use Fast.json insead of Protocal Buffer for better readability;
 
 
 ## Reference
