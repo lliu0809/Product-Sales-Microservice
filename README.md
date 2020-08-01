@@ -1,4 +1,4 @@
-# high-concurrency-programming
+# High Concurrency Product Sales System
 Product sales microservice written in Java with distributed session to handle high concurrency situations, optimizing by caching & asynchronous programming.
 
 
