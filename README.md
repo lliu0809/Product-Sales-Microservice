@@ -1,10 +1,11 @@
 # High Concurrency Product Sales System
-Product sales microservice written in Java with distributed session to handle high concurrency situations, optimizing by caching & asynchronous programming.
+Distributed product sales microservice written in Java to handle high concurrency situations, optimizing by caching & asynchronous programming.
 
 ## Introduction
 For popular e-commerce and online shopping product sales website, where large number of queries occur in a short period, the servers are usually facing a high concurrency environment. <br/>
 This project optimizes the server's performance by applying different caching methods and message queue asynchronous algorithms. <br/>
 The project also implements functionalities such as cryptographic password protection and robot test. <br/>
+The application is designed in a distributted mannar to benefit futher expansion.
 To test the performance of the server under different circumstances, the project uses Apache JMeter for load test. <br/>
 
 
