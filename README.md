@@ -1,6 +1,12 @@
 # High Concurrency Product Sales System
 Product sales microservice written in Java with distributed session to handle high concurrency situations, optimizing by caching & asynchronous programming.
 
+## Introduction
+For popular e-commerce and online shopping product sales website, where large number of queries occur in a short period, the servers are usually facing a high concurrency environment.
+This project optimizes the server's performance by applying different caching methods and message queue asynchronous algorithms. 
+The project also implements functionalities such as cryptographic password protection and robot test.
+To test the performance of the server under different circumstances, the project uses Apache JMeter for load test.
+
 
 ## Environments
 ### Back-end
@@ -21,11 +27,14 @@ Product sales microservice written in Java with distributed session to handle hi
 * Horizontal extension: [NGINX](https://www.nginx.com)
 
 
-## Designs & thoughts
+## Some designs & thoughts
 * Microservice design pattern: *controller* calls *service*, *service* calls *dao*;
 * Implement a **Result** class to encapsulate basic information;
 * Implement a **Key** class to get the key for accessing database;
-* For serialization, use Fast.json insead of Protocal Buffer for better readability;
+* For serialization, use Fast.json insead of Protocal Buffer for better code readability;
+* Apply [MD5](https://en.wikipedia.org/wiki/MD5) algorithm twice for user login to user's plaintext password: MD5_server(MD5_client(pass + salt) + random salt);
+* 
+
 
 
 ## Reference
