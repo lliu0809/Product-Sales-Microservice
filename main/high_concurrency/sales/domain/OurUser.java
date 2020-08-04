@@ -5,67 +5,62 @@ import java.util.Date;
 
 public class OurUser {
 	private Long id;
-	private String nickname;
+	private String username;
 	private String password;
 	private String salt;
-	private String head;
+	private String profileImage;
 	private Date registerDate;
 	private Date lastLoginDate;
 	private Integer loginCount;
-	
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	public String getNickname() {
-		return nickname;
+	public String getUsername() {
+		return username;
 	}
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
+	public void setUsername(String username) {
+		this.username = username;
 	}
-	
 	public String getPassword() {
 		return password;
 	}
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
 	public String getSalt() {
 		return salt;
 	}
 	public void setSalt(String salt) {
 		this.salt = salt;
 	}
-	
-	public String getHead() {
-		return head;
+	public String getProfileImage() {
+		return profileImage;
 	}
-	public void setHead(String head) {
-		this.head = head;
+	public void setProfileImage(String profileImage) {
+		this.profileImage = profileImage;
 	}
-	
 	public Date getRegisterDate() {
 		return registerDate;
 	}
 	public void setRegisterDate(Date registerDate) {
 		this.registerDate = registerDate;
 	}
-	
 	public Date getLastLoginDate() {
 		return lastLoginDate;
 	}
 	public void setLastLoginDate(Date lastLoginDate) {
 		this.lastLoginDate = lastLoginDate;
 	}
-	
 	public Integer getLoginCount() {
 		return loginCount;
 	}
 	public void setLoginCount(Integer loginCount) {
 		this.loginCount = loginCount;
 	}
+	
+
 }
+
