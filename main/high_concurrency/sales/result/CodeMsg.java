@@ -1,14 +1,15 @@
 package high_concurrency.sales.result;
 
-import com.imooc.miaosha.result.CodeMsg;
+import high_concurrency.sales.result.CodeMsg;
 
 public class CodeMsg {
 	private int code;
 	private String msg;
 	
-	// General Error 5001XX
 	public static CodeMsg SUCCESS = new CodeMsg(0, "Success!");
+	// General Error 5001XX
 	public static CodeMsg SERVER_ERROR = new CodeMsg(500100, "Server Error!");
+	public static CodeMsg BIND_ERROR = new CodeMsg(500101, "Data Error!");
 	
 	
 	// Login Error 5002XX

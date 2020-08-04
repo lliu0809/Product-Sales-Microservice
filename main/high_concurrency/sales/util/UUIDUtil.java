@@ -1,5 +1,9 @@
 package high_concurrency.sales.util;
 
-public class UUIDUtil {
+import java.util.UUID;
 
+public class UUIDUtil {
+	public static String uuid() {
+		return UUID.randomUUID().toString().replace("-", "");
+	}
 }
