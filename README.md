@@ -13,7 +13,7 @@ To test the performance of the server under different circumstances, the project
 ### Back-end
 * Microservice framework: [Spring Boot](https://spring.io)
 * Java persistence framework for database access: [MyBatis](https://blog.mybatis.org)
-* Server side authentication: [JSR303](https://beanvalidation.org/1.0/spec/)
+* User input data validation: [JSR303](https://beanvalidation.org/1.0/spec/)
 
 ### Front-end
 * Front-end framework: [Bootstrap](https://getbootstrap.com)
@@ -25,16 +25,18 @@ To test the performance of the server under different circumstances, the project
 * Asynchronous message queue: [RabbitMQ](https://www.rabbitmq.com)
 * Database monitoring: [Druid](https://druid.apache.org)
 * Load test & performance measuring: [JMeter](https://jmeter.apache.org)
-* Horizontal extension: [NGINX](https://www.nginx.com)
+* Horizontal extension: [Nginx](https://www.nginx.com)
 
 
 ## Some designs & thoughts
 * Microservice design pattern: *controller* calls *service*, *service* calls *dao*;
-* Implement a **Result** class to encapsulate basic information;
+* Implement a **Result** class to encapsulate basic information at server side;
 * Implement a **Key** class to get the key for accessing database;
-* For serialization, use Fast.json insead of Protocal Buffer for better code readability;
+* For serialization, use **Fast.json** insead of Protocal Buffer for better human data readability;
 * Apply [MD5](https://en.wikipedia.org/wiki/MD5) algorithm twice for user login to user's plaintext password: MD5_server(MD5_client(pass + salt) + random salt);
-* 
+* To check the validity of user input at Login, use JSR 303 to construct a validation annotation; then, allocate a exception package to catch the exceptions;
+* **IMPORTANT** **Distributed Session:** after the user logs in, generate a **session ID** for the user, write it to cookie and pass to the server. The server<br/> then takes this specific ID to fetch data for the user. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.
+* When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database
 
 
 
