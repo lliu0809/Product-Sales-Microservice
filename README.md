@@ -2,11 +2,11 @@
 Distributed product sales microservice written in Java to handle high concurrency situations, optimizing by caching & asynchronous programming.
 
 ## Introduction
-For popular e-commerce and online shopping product sales website, where large number of queries occur in a short period, the servers are usually facing a high concurrency environment. <br/>
-This project optimizes the server's performance by applying different caching methods and message queue asynchronous algorithms. <br/>
-The project also implements functionalities such as cryptographic password protection and robot test. <br/>
-The application is designed in a distributted mannar to benefit futher expansion.
-To test the performance of the server under different circumstances, the project uses Apache JMeter for load test. <br/>
+For popular e-commerce and online shopping product sales website, where large number of queries occur in a short period, the servers are usually facing a high concurrency environment. <br/><br/>
+This project optimizes the server's performance by applying different caching methods and message queue asynchronous algorithms. <br/><br/>
+The project also implements functionalities such as cryptographic password protection and robot test. <br/><br/>
+The application is designed in a distributted mannar to benefit futher expansion.<br/><br/>
+To compare the server's performance before and after optimization, the project uses Apache JMeter for load test. <br/><br/>
 
 
 ## Environments
@@ -28,8 +28,9 @@ To test the performance of the server under different circumstances, the project
 * Horizontal extension: [Nginx](https://www.nginx.com)
 
 
-## Some designs & thoughts
-* Microservice design pattern: *controller* calls *service*, *service* calls *dao*.
+## Some thoughts when designing the system
+* Microservice design pattern: *controller* calls *service*, *service* calls *dao*. 
+* Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
 * Implement a **Result** class to encapsulate basic information at server side.
 * Implement a **Key** class to get the key for accessing database.
 * For serialization, use **Fast.json** insead of Protocal Buffer for better human data readability.
@@ -38,7 +39,7 @@ To test the performance of the server under different circumstances, the project
 * **IMPORTANT** **Distributed Session:** after the user logs in, generate a **session ID** for the user, write it to cookie and pass to the server. The server then takes this specific ID to fetch data for the user. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.
 * When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.
 * To keep the products' database easy to maintain and ensure its performance, assign seperate tables to different sales event.
-* 
+* Usually a *service* file only calls its own *dao*, if we need to call the methods for other *dao*'s, call their *service*'s instead.
 
 ## Database
 ### User
@@ -61,7 +62,7 @@ To test the performance of the server under different circumstances, the project
 | product_name | varchar | 16 | 0 | NN |
 | product_img | varchar | 64 | 0 | NN |
 | product_detail | longtext | 0 | 0 | NN | Product Description
-| product_price | decimal | 10 | 2 | NN |
+| product_price | decimal | 10 | 2 | NN | Original price of product
 | product_stock | int | 11 | 0 | NN | Remaining stock for the product
 
 ## Reference
