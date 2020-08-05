@@ -32,4 +32,6 @@ public class LoginVo {
 	public String toString() {
 		return "LoginVo [phone = " + phone + ", password=" + password + "]";
 	}
+
+	
 }
