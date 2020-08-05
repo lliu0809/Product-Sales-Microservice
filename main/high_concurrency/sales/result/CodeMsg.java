@@ -7,6 +7,7 @@ public class CodeMsg {
 	private String msg;
 	
 	public static CodeMsg SUCCESS = new CodeMsg(0, "Success!");
+	
 	// General Error 5001XX
 	public static CodeMsg SERVER_ERROR = new CodeMsg(500100, "Server Error!");
 	public static CodeMsg BIND_ERROR = new CodeMsg(500101, "Data Error!");
@@ -24,8 +25,11 @@ public class CodeMsg {
 	// Product Error 5003XX
 	
 	// Order Error 5004XX
+	public static CodeMsg REPEAT_SALES = new CodeMsg(500430, "Order already placed.");
+	
 	
 	// Sales Error 5005XX
+	public static CodeMsg NO_PRODUCT = new CodeMsg(500540, "Product sold out.");
 	
 	private CodeMsg(int code, String msg) {
 		this.code = code;

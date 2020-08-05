@@ -12,6 +12,7 @@ public class OurUser {
 	private Date registerDate;
 	private Date lastLoginDate;
 	private Integer loginCount;
+	
 	public Long getId() {
 		return id;
 	}

@@ -24,13 +24,13 @@ public class OurUserService {
 	public static final String COOKI_NAME_TOKEN = "token";
 	
 	@Autowired
-	OurUserDao miaoshaUserDao;
+	OurUserDao ourUserDao;
 	
 	@Autowired
 	RedisService redisService;
 	
 	public OurUser getById(long id) {
-		return miaoshaUserDao.getById(id);
+		return ourUserDao.getById(id);
 	}
 	
 
@@ -50,21 +50,22 @@ public class OurUserService {
 		if(loginVo == null) {
 			throw new GlobalException(CodeMsg.SERVER_ERROR);
 		}
-		String mobile = loginVo.getMobile();
+		String phone = loginVo.getPhone();
 		String formPass = loginVo.getPassword();
+
 		// is phone number in our database
-		OurUser user = getById(Long.parseLong(mobile));
+		OurUser user = getById(Long.parseLong(phone));
 		if(user == null) {
-			throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+			throw new GlobalException(CodeMsg.PHONE_NOT_EXIST);
 		}
-		//验证密码
+		// authenticate password
 		String dbPass = user.getPassword();
 		String saltDB = user.getSalt();
 		String calcPass = MD5Util.formPassToDBPass(formPass, saltDB);
 		if(!calcPass.equals(dbPass)) {
 			throw new GlobalException(CodeMsg.PASSWORD_ERROR);
 		}
-		//生成cookie
+		// generate coockie
 		String token = UUIDUtil.uuid();
 		addCookie(response, token, user);
 		return true;

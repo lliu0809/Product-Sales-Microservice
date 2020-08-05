@@ -4,23 +4,23 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
-import high_concurrency.sales.validator.IsMobile;
+import high_concurrency.sales.validator.ValidPhone;
 
 public class LoginVo {
 	
 	@NotNull
-	@IsMobile
-	private String mobile;
+	@ValidPhone
+	private String phone;
 	
 	@NotNull
 	@Length(min=32)
 	private String password;
 	
-	public String getMobile() {
-		return mobile;
+	public String getPhone() {
+		return phone;
 	}
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 	public String getPassword() {
 		return password;
@@ -30,6 +30,6 @@ public class LoginVo {
 	}
 	@Override
 	public String toString() {
-		return "LoginVo [mobile=" + mobile + ", password=" + password + "]";
+		return "LoginVo [phone = " + phone + ", password=" + password + "]";
 	}
 }

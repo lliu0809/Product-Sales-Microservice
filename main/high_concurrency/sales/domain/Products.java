@@ -3,7 +3,6 @@ package high_concurrency.sales.domain;
 public class Products {
 	private Long id;
 	private String productName;
-	private String productTitle;
 	private String productImg;
 	private String productDetail;
 	private Double productPrice;
@@ -19,12 +18,6 @@ public class Products {
 	}
 	public void setProductName(String productName) {
 		this.productName = productName;
-	}
-	public String getProductTitle() {
-		return productTitle;
-	}
-	public void setProductTitle(String productTitle) {
-		this.productTitle = productTitle;
 	}
 	public String getProductImg() {
 		return productImg;

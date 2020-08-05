@@ -6,14 +6,14 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 
 import high_concurrency.sales.util.ValidatorUtil;
-import high_concurrency.sales.validator.IsMobile;
+import high_concurrency.sales.validator.ValidPhone;
 
-public class IsMobileValidator implements ConstraintValidator<IsMobile, String> {
+public class PhoneValidator implements ConstraintValidator<ValidPhone, String> {
 
 	// allowed to be empty
 	private boolean required = false;
 	
-	public void initialize(IsMobile constraintAnnotation) {
+	public void initialize(ValidPhone constraintAnnotation) {
 		required = constraintAnnotation.required();
 	}
 

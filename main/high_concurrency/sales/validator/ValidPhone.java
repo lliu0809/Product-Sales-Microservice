@@ -18,8 +18,8 @@ import javax.validation.Payload;
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {IsMobileValidator.class })
-public @interface  IsMobile {
+@Constraint(validatedBy = {PhoneValidator.class })
+public @interface  ValidPhone {
 	
 	boolean required() default true;
 	

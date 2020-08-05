@@ -6,8 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.imooc.miaosha.redis.UserKey;
-
+import high_concurrency.sales.redis.UserKey;
 import high_concurrency.sales.domain.User;
 import high_concurrency.sales.redis.RedisService;
 import high_concurrency.sales.result.CodeMsg;
