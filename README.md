@@ -28,7 +28,7 @@ To compare the server's performance before and after optimization, the project u
 * Horizontal extension: [Nginx](https://www.nginx.com)
 
 
-## Some thoughts when designing the system
+## Some thoughts，design logic & log 
 * Microservice design pattern: *controller* calls *service*, *service* calls *dao*. 
 * Usually a *service* file only calls its own *dao*, if we need to call the methods for other *dao*'s, call their *service*'s instead.
 * Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
