@@ -21,15 +21,16 @@ To compare the server's performance before and after optimization, the project u
 * Server-side template: [Thymeleaf](https://www.thymeleaf.org)
 
 ### Middleware
-* Caching: [Redis](https://redis.io)
+* [Redis](https://redis.io)
 * Asynchronous message queue: [RabbitMQ](https://www.rabbitmq.com)
 * Database monitoring: [Druid](https://druid.apache.org)
 * Load test & performance measuring: [JMeter](https://jmeter.apache.org)
 * Horizontal extension: [Nginx](https://www.nginx.com)
 
 
-## Some thoughts when designing the system
+## Some thoughts，design logic & log 
 * Microservice design pattern: *controller* calls *service*, *service* calls *dao*. 
+* Usually a *service* file only calls its own *dao*, if we need to call the methods for other *dao*'s, call their *service*'s instead.
 * Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
 * Implement a **Result** class to encapsulate basic information at server side.
 * Implement a **Key** class to get the key for accessing database.
@@ -39,7 +40,20 @@ To compare the server's performance before and after optimization, the project u
 * **IMPORTANT** **Distributed Session:** after the user logs in, generate a **session ID** for the user, write it to cookie and pass to the server. The server then takes this specific ID to fetch data for the user. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.
 * When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.
 * To keep the products' database easy to maintain and ensure its performance, assign seperate tables to different sales event.
-* Usually a *service* file only calls its own *dao*, if we need to call the methods for other *dao*'s, call their *service*'s instead.
+* After constructing the product sales functionalities, use JMeter to conduct load test and measure the system's performance; use custom variables to simulate real-world users. As for Redis, use [redis-benchmark](https://redis.io/topics/benchmarks) for testing.
+* JMeter Linux command:
+```sh
+sh jmeter.sh -n -t XXX.jmx -l result.jtl 
+```
+* Redis-benchmark Linux command:
+```sh
+redis-benchmark -h HOST -p PORT -c CONNECTION -n REQUEST
+redis-benchmark -h HOST -p PORT -d DATA
+```
+* **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests.
+* **JMeter Load Test Result For the Core Features Before Optimization:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations; in addition, oversold for the products happened according to the database :( 
+* *top* command: moniter system resource usage & storage. This shows that the bottleneck for the system is at the MySQL database. 
+
 
 ## Database
 ### User
