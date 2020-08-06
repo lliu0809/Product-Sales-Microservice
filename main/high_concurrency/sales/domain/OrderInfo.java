@@ -10,10 +10,9 @@ public class OrderInfo {
 	private String productName;
 	private Integer productCount;
 	private Double productPrice;
-	private Integer orderChannel;
 	private Integer status;
-	private Date createDate;
-	private Date paymentDate;
+	private Date Date;
+
 	public Long getId() {
 		return id;
 	}

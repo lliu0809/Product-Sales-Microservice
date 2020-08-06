@@ -5,9 +5,9 @@ import java.util.Date;
 public class SalesProduct {
 	private Long id;
 	private Long productId;
-	private Integer stockCount;
 	private Date startDate;
 	private Date endDate;
+
 	public Long getId() {
 		return id;
 	}
@@ -19,12 +19,6 @@ public class SalesProduct {
 	}
 	public void setProductId(Long productId) {
 		this.productId = productId;
-	}
-	public Integer getStockCount() {
-		return stockCount;
-	}
-	public void setStockCount(Integer stockCount) {
-		this.stockCount = stockCount;
 	}
 	public Date getStartDate() {
 		return startDate;
