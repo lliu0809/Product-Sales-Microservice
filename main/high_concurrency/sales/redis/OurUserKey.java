@@ -10,4 +10,6 @@ public class OurUserKey extends BasePrefix{
 		super(expireSeconds, prefix);
 	}
 	public static OurUserKey token = new OurUserKey(TOKEN_EXPIRE, "tk");
+	public static OurUserKey getById = new OurUserKey(0, "id");
+
 }

@@ -26,6 +26,8 @@ public class CodeMsg {
 	
 	// Order Error 5004XX
 	public static CodeMsg REPEAT_SALES = new CodeMsg(500430, "Order already placed.");
+	public static CodeMsg ORDER_NOT_EXIST = new CodeMsg(500431, "Order does not exist.");
+
 	
 	
 	// Sales Error 5005XX

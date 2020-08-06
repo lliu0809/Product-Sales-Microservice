@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import high_concurrency.sales.redis.KeyPrefix;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -72,6 +73,19 @@ public class RedisService {
 		 }
 	}
 	
+	
+	public boolean delete(KeyPrefix prefix, String key) {
+		 Jedis jedis = null;
+		 try {
+			 jedis =  jedisPool.getResource();
+			long ret =  jedis.del(key);
+			return ret > 0;
+		 }finally {
+			  returnToPool(jedis);
+		 }
+	}
+	
+	
 
 	public <T> Long incr(KeyPrefix prefix, String key) {
 		 Jedis jedis = null;
@@ -137,3 +151,4 @@ public class RedisService {
 	}
 
 }
+

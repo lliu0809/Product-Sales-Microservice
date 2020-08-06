@@ -30,42 +30,70 @@ public class OurUserService {
 	RedisService redisService;
 	
 	public OurUser getById(long id) {
-		return ourUserDao.getById(id);
+		// fetch cache
+		OurUser user = redisService.get(OurUserKey.getById, "" + id, OurUser.class);
+		if(user != null) {
+			return user;
+		}
+		
+		// manually render & update cache
+		user = ourUserDao.getById(id);
+		if(user != null) {
+			redisService.set(OurUserKey.getById, "" + id, user);
+		}
+		
+		return user;
 	}
 	
+	// when the user updates password, change the cache
+	public boolean updatePassword(String token, long id, String formPass) {
+		OurUser user = getById(id);
+		if(user == null) {
+			throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+		}
 
-	public OurUser getByToken(HttpServletResponse response, String token) {
-		if(StringUtils.isEmpty(token)) {
+		OurUser toBeUpdate = new OurUser();
+		toBeUpdate.setId(id);
+		toBeUpdate.setPassword(MD5Util.formPassToDBPass(formPass, user.getSalt()));
+		ourUserDao.update(toBeUpdate);
+		
+		//delete ID & token
+		redisService.delete(OurUserKey.getById, "" + id);
+		user.setPassword(toBeUpdate.getPassword());
+		redisService.set(OurUserKey.token, token, user);
+		return true;
+	}
+	
+	
+	public OurUser getByToken(HttpServletResponse response, String  token) {
+		if(StringUtils.isEmpty(token)) 
 			return null;
-		}
 		OurUser user = redisService.get(OurUserKey.token, token, OurUser.class);
-		if(user != null) {
+		if(user != null) 
+			// extend cookie expiration time(refresh the cookie at database)
 			addCookie(response, token, user);
-		}
 		return user;
 	}
 	
 
 	public boolean login(HttpServletResponse response, LoginVo loginVo) {
-		if(loginVo == null) {
+		if(loginVo == null) 
 			throw new GlobalException(CodeMsg.SERVER_ERROR);
-		}
-		String phone = loginVo.getPhone();
+		String mobile = loginVo.getMobile();
 		String formPass = loginVo.getPassword();
-
 		// is phone number in our database
-		OurUser user = getById(Long.parseLong(phone));
-		if(user == null) {
-			throw new GlobalException(CodeMsg.PHONE_NOT_EXIST);
-		}
+		OurUser user = getById(Long.parseLong(mobile));
+		if(user == null) 
+			throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+		
 		// authenticate password
 		String dbPass = user.getPassword();
 		String saltDB = user.getSalt();
 		String calcPass = MD5Util.formPassToDBPass(formPass, saltDB);
-		if(!calcPass.equals(dbPass)) {
+		if(!calcPass.equals(dbPass)) 
 			throw new GlobalException(CodeMsg.PASSWORD_ERROR);
-		}
-		// generate coockie
+		
+		// generate cookie for user
 		String token = UUIDUtil.uuid();
 		addCookie(response, token, user);
 		return true;
@@ -74,7 +102,8 @@ public class OurUserService {
 	private void addCookie(HttpServletResponse response, String token, OurUser user) {
 		redisService.set(OurUserKey.token, token, user);
 		Cookie cookie = new Cookie(COOKI_NAME_TOKEN, token);
-		cookie.setMaxAge(OurUserKey.token.expireSeconds());
+		// when token expires, cookie expires
+		cookie .setMaxAge(OurUserKey.token.expireSeconds());
 		cookie.setPath("/");
 		response.addCookie(cookie);
 	}
