@@ -19,7 +19,7 @@ public interface ProductDao {
 	@Select("select g.*,mg.stock_count, mg.start_date, mg.end_date,mg.sales_price from sales_product mg left join product g on mg.v_id = g.id where g.id = #{productId}")
 	public ProductVo getProductVoByProductId(@Param("productId")long productId);
 
-	@Update("update sales_product set stock_count = stock_count - 1 where product_id = #{productId}")
+	@Update("update sales_product set stock_count = stock_count - 1 where product_id = #{productId} and stock_count > 0")
 	public int reduceStock(SalesProduct g);
 	
 }
