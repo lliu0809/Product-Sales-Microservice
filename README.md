@@ -29,30 +29,72 @@ To compare the server's performance before and after optimization, the project u
 
 
 ## Some thoughts，design logic & log 
-* Microservice design pattern: *controller* calls *service*, *service* calls *dao*. 
-* Usually a *service* file only calls its own *dao*, if we need to call the methods for other *dao*'s, call their *service*'s instead.
-* Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
-* Implement a **Result** class to encapsulate basic information at server side.
-* Implement a **Key** class to get the key for accessing database.
+* Microservice design pattern: *controller* calls *service*, *service* calls *dao*. <br/>
+  Usually a *service* file only calls its own *dao*, if it needs to call the methods from other *dao*'s, call their *service*'s instead. Otherwise, the step of fetching cache (which lies in the *service* files) would be directly skipped. <br/>
+  Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
+  
+* Implement a **Result** class to encapsulate basic information at server side.<br/>
+  Implement a **Key** class to get the key for accessing database. 
+  
 * For serialization, use **Fast.json** insead of Protocal Buffer for better human data readability.
+
 * Apply [MD5](https://en.wikipedia.org/wiki/MD5) algorithm twice for user login to user's plaintext password: MD5_server(MD5_client(pass + salt) + random salt).
+
 * To check the validity of user input at Login, use JSR 303 to construct a validation annotation; then, allocate a exception package to catch the exceptions.
-* **IMPORTANT** **Distributed Session:** after the user logs in, generate a **session ID** for the user, write it to cookie and pass to the server. The server then takes this specific ID to fetch data for the user. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.
-* When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.
-* To keep the products' database easy to maintain and ensure its performance, assign seperate tables to different sales event.
-* After constructing the product sales functionalities, use JMeter to conduct load test and measure the system's performance; use custom variables to simulate real-world users. As for Redis, use [redis-benchmark](https://redis.io/topics/benchmarks) for testing.
-* JMeter Linux command:
+
+* **IMPORTANT** **Distributed Session:** after the user logs in, generate a **session ID** for the user, write it to cookie and pass to the server. The server then takes this specific ID to fetch data for the user. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.<br/>
+  When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.
+  
+* To keep the products' database easy to maintain and ensure its performance, seperate tables for different sales event from the regular product table.
+
+* After implementing the basic product sales functionalities, use JMeter to conduct load test and measure the system's performance; use custom variables to simulate real-world users. As for Redis, use [redis-benchmark](https://redis.io/topics/benchmarks) for testing.<br/>
+  JMeter Linux command:
 ```sh
 sh jmeter.sh -n -t XXX.jmx -l result.jtl 
 ```
-* Redis-benchmark Linux command:
+  Redis-benchmark Linux command:
 ```sh
 redis-benchmark -h HOST -p PORT -c CONNECTION -n REQUEST
 redis-benchmark -h HOST -p PORT -d DATA
 ```
-* **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests.
-* **JMeter Load Test Result For the Core Features Before Optimization:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations; in addition, oversold for the products happened according to the database :( 
-* *top* command: moniter system resource usage & storage. This shows that the bottleneck for the system is at the MySQL database. 
+<br/>
+  **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests.
+  **JMeter Load Test Result For the Core Features Before Optimization:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations; in addition, oversold for the products happened according to the database :( <br/>
+  *top* command: moniter system resource usage & storage. This shows that the bottleneck for the system is at the MySQL database. 
+  
+  
+* Now moving to optimizing the service: first, ultilize caching to relieve the pressure of database. More specifically, apply **Page Caching, URL Caching & Object Caching** (listed in order of the Granularity level)<br/>
+  For HTML template page caching, the caching period should be relatively small. Page caching mainly aims to deal with large concurrent requests in an extreme short period, therefore storing the HTML templates in cache for a long time is not necessary. If they are indeed stored in cache for a long period, it is possible that data fetched for user from the cache might be outdated.<br/>
+  On the other hand, Object Caching focuses on a single user, and its cache should exist forever rather than expiring fast. The only case to make changes to the cache is when the user updates his/her password (in this case we need to modify everything related to the user. ie. token & id).<br/>
+  After applying these caching methods, the service's QPS increased to 30k.<br/>
+  
+* To further optimize the system's performance, make the dynamic HTML pages static. HTML pages will be stored in the user's browser, therefore reducing the pressure for the database. Modern language and tools, such as AngularJS & Vue.js are all implemented in this mannar. 
+  The client would ask the server whether the resources have been updated since a specific time, and if it receives a 304 code indicating no update, it will directly fetch the cache from the browser. However, this still requires some communication between the server and client. We can completely get rid of this by manually configure our program, and in a specific time period we allocated, the browser will directly ask its cache without querying the server.
+  
+* During load test, products are being oversold. That is, inside the database, remaining stock in warehouse of the products became negative. To deal with this problem, check the stock count in database to make sure it is larger than 0 everytime a purchase is made. (When the database is updated by a thread, it will be automatically locked, so race conditions won't happen and we can ignore this part) Also, if one user can purchase no more than one sales product, assign an unique index to the related fields in the database.
+  
+## Optimization Methods
+### HTML Page Caching, URL Caching & Object Caching
+  1. Fetch cache. If HTML template exist in cache, return.<br/>
+  2. If data does not exist in cache, manually render the HTML templates to client and add them to cache.<br/>
+  3. Return the HTML templates.<br/><br/>
+  
+  * Page caching and URL caching are all temporary, that they only exist in cache for a short period of time because the HTML files might be changing. Object caching are however permanent, as the cache is assigned for every single user. 
+  
+
+### Staticizing dynamic HTML pages
+  Store the HTML pages inside the user's browsers, therefore reducing the queries to the database. Modern language and tools, such as AngularJS & Vue.js are all implemented in this mannar. <br/>
+  Implement this inside the HTML files with AJAX, and config inside pom.xml.
+  
+  
+### Optimization on static resources
+  1. Compress CSS and JavaScript files to reduce throughput ([webpack](https://webpack.js.org))<br/>
+  2. Combine multiple JavaScript and CSS files into a single file to reduce connections, otherwise there might be multiple connections for multiple rounds ([Tengine](https://tengine.taobao.org))
+  3. Content Delivery Network ([CDN](https://en.wikipedia.org/wiki/Content_delivery_network)) 
+  
+ 
+  
+  
 
 
 ## Database
@@ -78,6 +120,45 @@ redis-benchmark -h HOST -p PORT -d DATA
 | product_detail | longtext | 0 | 0 | NN | Product Description
 | product_price | decimal | 10 | 2 | NN | Original price of product
 | product_stock | int | 11 | 0 | NN | Remaining stock for the product
+
+
+### Products on sale (seperated from the Product table)
+| Name | Type | Length | Decimals | Not Null | Comment |
+| --- | --- | --- | --- | --- | --- |
+| id | bigint | 20 | 0 | - |
+| product_id | bigint | 20 | 0 | - | Link to the Product table
+| start_date | datetime | 0 | 0 | NN | Sales event starting time 
+| end_date | datetime | 0 | 0 | NN | Sales event ending time 
+
+
+### Order
+| Name | Type | Length | Decimals | Not Null | Comment |
+| --- | --- | --- | --- | --- | --- |
+| id | bigint | 20 | 0 | - |
+| user_id | bigint | 20 | 0 | - |
+| product_id | bigint | 20 | 0 | - |
+| product_name | varchar | 64 | 0 | NN |
+| product_count | int | 11 | 0 | NN |
+| product_price | decimal | 10 | 2 | NN | 
+| status | int | 11 | 0 | NN | ENUM of order status
+| delivery_addr | bigint | 20 | 0 | - |
+| date | datetime | 0 | 0 | NN | Order creation time
+
+
+### Order for sales event (seperated from the Order table)
+| Name | Type | Length | Decimals | Not Null | Comment |
+| --- | --- | --- | --- | --- | --- |
+| id | bigint | 20 | 0 | - |
+| user_id | bigint | 20 | 0 | - |
+| order_id | bigint | 20 | 0 | - | Link to the Order table
+
+
+
+
+
+## UML Graphs for the system
+
+## Interfaces
 
 ## Reference
 * imooc course: https://coding.imooc.com/class/168.html
