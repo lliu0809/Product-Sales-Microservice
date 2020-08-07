@@ -58,6 +58,7 @@ redis-benchmark -h HOST -p PORT -c CONNECTION -n REQUEST
 redis-benchmark -h HOST -p PORT -d DATA
 ```
 <br/>
+
   **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests.
   **JMeter Load Test Result For the Core Features Before Optimization:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations; in addition, oversold for the products happened according to the database :( <br/>
   *top* command: moniter system resource usage & storage. This shows that the bottleneck for the system is at the MySQL database. 
@@ -72,6 +73,11 @@ redis-benchmark -h HOST -p PORT -d DATA
   The client would ask the server whether the resources have been updated since a specific time, and if it receives a 304 code indicating no update, it will directly fetch the cache from the browser. However, this still requires some communication between the server and client. We can completely get rid of this by manually configure our program, and in a specific time period we allocated, the browser will directly ask its cache without querying the server.
   
 * During load test, products are being oversold. That is, inside the database, remaining stock in warehouse of the products became negative. To deal with this problem, check the stock count in database to make sure it is larger than 0 everytime a purchase is made. (When the database is updated by a thread, it will be automatically locked, so race conditions won't happen and we can ignore this part) Also, if one user can purchase no more than one sales product, assign an unique index to the related fields in the database.
+
+
+* Caching improved the system's performance in some degree. However, for an extreme popular e-commerce product sales website, this is not enough. More methods are  needed to further optimize the system by reducing queries to database. This can be done with **Redis**. Make the place order process to be asynchronous. 
+  Install, configure, and integrate RabbitMQ. Implement RabbitMQ sender and receiver.
+
   
 ## Optimization Methods
 ### HTML Page Caching, URL Caching & Object Caching
@@ -87,13 +93,25 @@ redis-benchmark -h HOST -p PORT -d DATA
   Implement this inside the HTML files with AJAX, and config inside pom.xml.
   
   
-### Optimization on static resources
+### Optimization over static resources
   1. Compress CSS and JavaScript files to reduce throughput ([webpack](https://webpack.js.org))<br/>
   2. Combine multiple JavaScript and CSS files into a single file to reduce connections, otherwise there might be multiple connections for multiple rounds ([Tengine](https://tengine.taobao.org))
   3. Content Delivery Network ([CDN](https://en.wikipedia.org/wiki/Content_delivery_network)) 
   
  
+### Optimizing with asynchronous
+  We can further reduce the number of queries to MySQL database using Redis.<br/>
+  1. When the system is initialized, load the stock count of the products into Redis.<br/>
+  2. When an order is placed, reduce stock count in Redis; if there's no stock left, return. In this case, when the stock count stored in Redis is less than 0, all following requests will be directly returned without querying to database.<br/>
+  3. Server queries to enter the queue, return to the user that he/she is in the waiting queue.<br/>
+  4. Server queries to exit the queue, generate order and decrease stock count.<br/>
+  5. Server polls the status of the order.
   
+  
+### Nginx horizontal extension
+
+
+### Database Sharding
   
 
 
