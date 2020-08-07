@@ -1,4 +1,4 @@
- package high_concurrency.sales.service;
+package high_concurrency.sales.service;
 
 import java.util.List;
 
@@ -13,6 +13,7 @@ import high_concurrency.sales.vo.ProductVo;
 public class ProductService {
 	
 	@Autowired
+	static
 	ProductDao productDao;
 	
 	public List<ProductVo> listProductVo(){
@@ -23,7 +24,7 @@ public class ProductService {
 		return productDao.getProductVoByProductId(productId);
 	}
 
-	public void reduceStock(ProductVo product) {
+	public static boolean reduceStock(ProductVo product) {
 		SalesProduct sp = new SalesProduct();
 		sp.setProductId(product.getId());
 		productDao.reduceStock(sp);

@@ -10,4 +10,5 @@ public class ProductKey extends BasePrefix{
 	}
 	public static ProductKey getProductList = new ProductKey(60, "product_list");
 	public static ProductKey getProductDetail = new ProductKey(60, "product_detail");
+	public static ProductKey getSalesProductcount = new ProductKey(0, "product_stock");
 }
