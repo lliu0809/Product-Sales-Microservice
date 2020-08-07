@@ -49,7 +49,7 @@ public class OurUserService {
 	public boolean updatePassword(String token, long id, String formPass) {
 		OurUser user = getById(id);
 		if(user == null) {
-			throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+			throw new GlobalException(CodeMsg.PHONE_NUM_NOT_EXIST);
 		}
 
 		OurUser toBeUpdate = new OurUser();
@@ -79,12 +79,12 @@ public class OurUserService {
 	public boolean login(HttpServletResponse response, LoginVo loginVo) {
 		if(loginVo == null) 
 			throw new GlobalException(CodeMsg.SERVER_ERROR);
-		String mobile = loginVo.getMobile();
+		String num = loginVo.getPhone();
 		String formPass = loginVo.getPassword();
 		// is phone number in our database
-		OurUser user = getById(Long.parseLong(mobile));
+		OurUser user = getById(Long.parseLong(num));
 		if(user == null) 
-			throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+			throw new GlobalException(CodeMsg.PHONE_NUM_NOT_EXIST);
 		
 		// authenticate password
 		String dbPass = user.getPassword();

@@ -46,11 +46,11 @@ public class OrderController {
     		return Result.error(CodeMsg.ORDER_NOT_EXIST);
     	}
     	
-    	long goodsId = order.getProductId();
-    	ProductVo goods = productService.getProductVoByProductId(goodsId);
+    	long productId = order.getProductId();
+    	ProductVo product = productService.getProductVoByProductId(productId);
     	OrderDetailVo vo = new OrderDetailVo();
     	vo.setOrder(order);
-    	vo.setProduct(goods);
+    	vo.setProduct(product);
     	return Result.success(vo);
     }
     

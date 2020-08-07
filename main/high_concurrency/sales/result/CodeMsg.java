@@ -16,9 +16,9 @@ public class CodeMsg {
 	// Login Error 5002XX
 	public static CodeMsg SESSION_ERROR = new CodeMsg(500210, "Session does not exist or has already ended");
 	public static CodeMsg PASSWORD_EMPTY = new CodeMsg(500211, "Password cannot be empty!");
-	public static CodeMsg MOBILE_EMPTY = new CodeMsg(500212, "Phone number cannot be empty!");
-	public static CodeMsg MOBILE_ERROR = new CodeMsg(500213, "Phone number is wrong.");
-	public static CodeMsg MOBILE_NOT_EXIST = new CodeMsg(500214, "Phone number does not exist!");
+	public static CodeMsg PHONE_NUM_EMPTY = new CodeMsg(500212, "Phone number cannot be empty!");
+	public static CodeMsg PHONE_NUM_ERROR = new CodeMsg(500213, "Phone number is wrong.");
+	public static CodeMsg PHONE_NUM_NOT_EXIST = new CodeMsg(500214, "Phone number does not exist!");
 	public static CodeMsg PASSWORD_ERROR = new CodeMsg(500215, "Password is not correct.");
 	
 	
