@@ -43,7 +43,7 @@ public class ProductController {
     ApplicationContext applicationContext;
     
     
-    @RequestMapping(value="/product_list", produces="text/html")
+    @RequestMapping(value="/productlist", produces="text/html")
     @ResponseBody
     public String list(HttpServletRequest request, HttpServletResponse response, Model model, OurUser user) {
         
@@ -71,7 +71,7 @@ public class ProductController {
     }
     
     
-    @RequestMapping(value="/product_detail/{productId}",produces="text/html")
+    @RequestMapping(value="/productdetail/{productId}",produces="text/html")
     @ResponseBody
     public String detail2(HttpServletRequest request, HttpServletResponse response, Model model, OurUser user, @PathVariable("productId")long productId) {
 
