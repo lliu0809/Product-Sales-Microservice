@@ -98,7 +98,7 @@ $ redis-benchmark -h HOST -p PORT -d DATA
   With the help of previous optimizations, Nginx would provide a powerful tool to expand the system while ensuring performance. <br/><br/>
   As the system grows even larger, apply (LVS)[http://www.linuxvirtualserver.org] for further scaling.<br/>
   
-  
+  <br/><br/>
 
 
   
@@ -131,15 +131,17 @@ $ redis-benchmark -h HOST -p PORT -d DATA
   4. Server queries to exit the queue, generate order and decrease stock count asynchronously.<br/>
   5. Server polls the status of the order.
  
+### Database Sharding
+<br/><br/>
 
-### Optimization on Security:
+### Optimization on Security
   1. Hide the product sales event interface. Every time there's a new sales event, generate a random URL from server rather than keeping a static one.<br/>
   2. During login time, ask the user to enter a verification code. While preventing boot/robot, this will also extend the period for a user to log in and query for the database, therefore spliting the concurrent queries and reducing the pressure on server side. <br/>  
   3. Given the QPS for the system, limit the time for the user to query for the server (e.g. login and send verification code) within a specific time period to prevent potential attacks. This can be realized with an interceptor reading on cache data. 
   
+<br/><br/>
 
 
-### Database Sharding
   
 
 
@@ -198,6 +200,7 @@ $ redis-benchmark -h HOST -p PORT -d DATA
 | user_id | bigint | 20 | 0 | - |
 | order_id | bigint | 20 | 0 | - | Link to the Order table
 
+<br/><br/>
 
 
 
