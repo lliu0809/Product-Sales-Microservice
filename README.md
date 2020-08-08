@@ -48,7 +48,7 @@ To compare the server's performance before and after optimization, the project u
 * Implement a **Result** class to encapsulate information from server side.<br/><br/>
   Implement a **Key** class to get the key for accessing database. <br/>
   
-* For serialization, use **Fast.json** insead of Protocal Buffer for better human data readability.<br/>
+* For serialization, use **Fast.json** instead of Protocol Buffer for better human data readability.<br/>
 
 * Apply [MD5](https://en.wikipedia.org/wiki/MD5) algorithm twice to the plaintext passwords at user login to protect data transfer: MD5_server(MD5_client(pass + salt) + random salt).<br/>
 
@@ -58,7 +58,7 @@ To compare the server's performance before and after optimization, the project u
   When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.<br/><br/>
   This will help in future scaling and expansions to keep data consistency.<br/>
   
-* To keep the databases easy to maintain and ensure database performance, seperate tables for different sales events from the regular product table.<br/>
+* To keep the databases easy to maintain and ensure database performance, separate tables for different sales events from the regular product table.<br/>
 
 * After implementing the basic product sales functionalities, use JMeter to conduct load test and measure the system's performance; use custom variables to simulate real-world users. As for Redis, use [redis-benchmark](https://redis.io/topics/benchmarks) for testing.<br/>
   JMeter Linux command:
@@ -75,15 +75,15 @@ $ redis-benchmark -h HOST -p PORT -d DATA
 
   **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests. <br/>
   **JMeter Load Test Result:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations :( <br/>
-  This shows that the bottleneck for the system is at the MySQL database.  *top* command: moniter system resource usage & storage. <br/>
+  This shows that the bottleneck for the system is at the MySQL database.  *top* command: monitor system resource usage & storage. <br/>
   
   
-* Now moving to optimizations: first, ultilize caching methods to lower the pressure of database. More specifically, apply **Page Caching, URL Caching and Object Caching** (listed in order of granularity level)<br/><br/>
+* Now moving to optimizations: first, utilize  caching methods to lower the pressure of database. More specifically, apply **Page Caching, URL Caching and Object Caching** (listed in order of granularity level)<br/><br/>
   For HTML template page caching, the caching period should be relatively short: page caching mainly aims to deal with large concurrent requests in an extreme short period, therefore storing the HTML templates in cache for a long time might result in data inconsistency.<br/><br/>
   On the other hand, Object Caching focuses on a single user, and its cache should exist permanently rather than expiring fast. The only case to make changes to the cache is when the user updates his/her password.<br/><br/>
   After applying these caching methods, the service's QPS increased to 30k.<br/>
   
-* To further optimize the system's performance, make the **dynamic HTML pages static**. HTML pages can be stored in the user's browser, therefore decreasing the queries to the database. Modern language and tools, such as AngularJS and Vue.js are all implemented in this mannar. <br/><br/>
+* To further optimize the system's performance, make the **dynamic HTML pages static**. HTML pages can be stored in the user's browser, therefore decreasing the queries to the database. Modern language and tools, such as AngularJS and Vue.js are all implemented in this manner. <br/><br/>
   The client would ask the server whether data have been updated since a specific time, and upon receiving a 304 code indicating no update, it will directly fetch the cache from the browser. <br/> <br/>
   However, this still requires some communication between the server and client. We can completely get rid of this by manually configure our program such that the browser will directly ask its cache without querying the server in a specific time period we allocated.<br/>
   
