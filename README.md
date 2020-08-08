@@ -1,95 +1,98 @@
-# High Concurrency Product Sales System
-Distributed product sales microservice written in Java to handle high concurrency situations, optimizing by caching & asynchronous programming.
+# Product Sales System for High Concurrency Environments
+Distributed micro-service written in Java to handle high concurrency situations, optimizing with caching & asynchronous message queues. 
 
 ## Introduction
-For popular e-commerce and online shopping product sales website, where large number of queries occur in a short period, the servers are usually facing a high concurrency environment. <br/><br/>
-This project optimizes the server's performance by applying different caching methods and message queue asynchronous algorithms. <br/><br/>
-The project also implements functionalities such as cryptographic password protection and robot test. <br/><br/>
-The application is designed in a distributted mannar to benefit futher expansion.<br/><br/>
+For popular e-commerce and online shopping websites, there might be a huge page view in a extreme short period when there's a special event such as product sales.  In this case, the server will be facing a large number of concurrent queries, significantly influencing its performance. <br/><br/>
+This project optimizes the server's performance under such circumstances by applying different caching methods and message queue asynchronous algorithms. <br/><br/>
+The project also implements functionalities such as cryptographic password protection and robot test framework. <br/><br/>
+The system also uses Redis to realize distributed sessions to benefit futher expansion.<br/><br/>
 To compare the server's performance before and after optimization, the project uses Apache JMeter for load test. <br/><br/>
 
 ## Table of Contents
-* [Environments](#snvironments)
-* [Some design thoughts and log](#some_design_thoughts_and_log)
-* [Optimization Methods](#optimization_methods)
-* [Database Design](#database_design)
-* [UML](#uml)
-* [Interfaces](#interfaces)
+* [Environments and Tools](#environments-and-tools)
+* [Some design thoughts and log](#some-design-thoughts-and-log)
+* [Optimization Methods](#optimization-methods)
+* [Database Design](#database-design)
 * [Reference](#reference)
+<br/><br/>
 
-
-## Environments
+## Environments and Tools
 ### Back-end
-* Microservice framework: [Spring Boot](https://spring.io)
+* Microservice framework: [Spring Boot](https://spring.io) with [Maven](https://maven.apache.org)
 * Java persistence framework for database access: [MyBatis](https://blog.mybatis.org)
-* User input data validation: [JSR303](https://beanvalidation.org/1.0/spec/)
+* User input validation: [JSR303](https://beanvalidation.org/1.0/spec/)
 
 ### Front-end
 * Front-end framework: [Bootstrap](https://getbootstrap.com)
 * DOM manipulation: [JQuery](https://jquery.com)
-* Server-side template: [Thymeleaf](https://www.thymeleaf.org)
+* Template: [Thymeleaf](https://www.thymeleaf.org)
 
-### Middleware
+### Middleware and others
 * [Redis](https://redis.io)
 * Asynchronous message queue: [RabbitMQ](https://www.rabbitmq.com)
 * Database monitoring: [Druid](https://druid.apache.org)
 * Load test & performance measuring: [JMeter](https://jmeter.apache.org)
-* Horizontal extension: [Nginx](https://www.nginx.com)
+* Horizontal scaling: [Nginx](https://www.nginx.com)
+<br/><br/>
 
 
-## Some design thoughts and log 
-* Microservice design pattern: *controller* calls *service*, *service* calls *dao*. <br/>
-  Usually a *service* file only calls its own *dao*, if it needs to call the methods from other *dao*'s, call their *service*'s instead. Otherwise, the step of fetching cache (which lies in the *service* files) would be directly skipped. <br/>
-  Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
+
+## Some Design Thoughts and Log 
+* Microservice design pattern: *controller* calls *service*, *service* calls *dao*. <br/><br/>
+  Usually a *service* file only calls its own *dao*, if it needs to call the functions from other *dao*'s, call their *service*'s instead. Otherwise, cache from *service* files cannot be fetched. <br/>
   
-* Implement a **Result** class to encapsulate basic information at server side.<br/>
-  Implement a **Key** class to get the key for accessing database. 
+* Implement a **Result** class to encapsulate information from server side.<br/><br/>
+  Implement a **Key** class to get the key for accessing database. <br/>
   
-* For serialization, use **Fast.json** insead of Protocal Buffer for better human data readability.
+* For serialization, use **Fast.json** insead of Protocal Buffer for better human data readability.<br/>
 
-* Apply [MD5](https://en.wikipedia.org/wiki/MD5) algorithm twice for user login to user's plaintext password: MD5_server(MD5_client(pass + salt) + random salt).
+* Apply [MD5](https://en.wikipedia.org/wiki/MD5) algorithm twice to the plaintext passwords at user login to protect data transfer: MD5_server(MD5_client(pass + salt) + random salt).<br/>
 
-* To check the validity of user input at Login, use JSR 303 to construct a validation annotation; then, allocate a exception package to catch the exceptions.
+* To check the validity of user input at Login, use [JSR 303](https://beanvalidation.org/1.0/spec/) to implement a validation annotation; then, allocate a exception package to catch the exceptions thrown.<br/>
 
-* **IMPORTANT** **Distributed Session:** after the user logs in, generate a **session ID** for the user, write it to cookie and pass to the server. The server then takes this specific ID to fetch data for the user. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.<br/>
-  When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.
+* **Distributed Session:** after the user logs in, generate a *session ID* for the user, write it to cookie and pass it to the server. The server then takes this specific ID to fetch data for the user from database. Therefore, each session does not directly store data to the server, but instead to our cache managed by Redis.<br/><br/>
+  When the user visit the website before the corresponding token expires, the project extends the token's expiration time by adding a new one to the database.<br/><br/>
+  This will help in future scaling and expansions to keep data consistency.<br/>
   
-* To keep the products' database easy to maintain and ensure its performance, seperate tables for different sales event from the regular product table.
+* To keep the databases easy to maintain and ensure database performance, seperate tables for different sales events from the regular product table.<br/>
 
 * After implementing the basic product sales functionalities, use JMeter to conduct load test and measure the system's performance; use custom variables to simulate real-world users. As for Redis, use [redis-benchmark](https://redis.io/topics/benchmarks) for testing.<br/>
   JMeter Linux command:
 ```sh
-sh jmeter.sh -n -t XXX.jmx -l result.jtl 
+$ sh jmeter.sh -n -t XXX.jmx -l result.jtl 
 ```
+<br/>
   Redis-benchmark Linux command:
 ```sh
-redis-benchmark -h HOST -p PORT -c CONNECTION -n REQUEST
-redis-benchmark -h HOST -p PORT -d DATA
+$ redis-benchmark -h HOST -p PORT -c CONNECTION -n REQUEST
+$ redis-benchmark -h HOST -p PORT -d DATA
 ```
 <br/>
 
-  **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests.
-  **JMeter Load Test Result For the Core Features Before Optimization:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations; in addition, oversold for the products happened according to the database :( <br/>
-  *top* command: moniter system resource usage & storage. This shows that the bottleneck for the system is at the MySQL database. 
+  **Redis Load Test Result:** about 65k QPS for 100 connections and 100,000 total requests. <br/>
+  **JMeter Load Test Result:** only around 1.2k QPS for 5000 concurrent threads * 10 iterations :( <br/>
+  This shows that the bottleneck for the system is at the MySQL database.  *top* command: moniter system resource usage & storage. <br/>
   
   
-* Now moving to optimizing the service: first, ultilize caching to relieve the pressure of database. More specifically, apply **Page Caching, URL Caching & Object Caching** (listed in order of the Granularity level)<br/>
-  For HTML template page caching, the caching period should be relatively small. Page caching mainly aims to deal with large concurrent requests in an extreme short period, therefore storing the HTML templates in cache for a long time is not necessary. If they are indeed stored in cache for a long period, it is possible that data fetched for user from the cache might be outdated.<br/>
-  On the other hand, Object Caching focuses on a single user, and its cache should exist forever rather than expiring fast. The only case to make changes to the cache is when the user updates his/her password (in this case we need to modify everything related to the user. ie. token & id).<br/>
+* Now moving to optimizations: first, ultilize caching methods to lower the pressure of database. More specifically, apply **Page Caching, URL Caching and Object Caching** (listed in order of granularity level)<br/><br/>
+  For HTML template page caching, the caching period should be relatively short: page caching mainly aims to deal with large concurrent requests in an extreme short period, therefore storing the HTML templates in cache for a long time might result in data inconsistency.<br/><br/>
+  On the other hand, Object Caching focuses on a single user, and its cache should exist permanently rather than expiring fast. The only case to make changes to the cache is when the user updates his/her password.<br/><br/>
   After applying these caching methods, the service's QPS increased to 30k.<br/>
   
-* To further optimize the system's performance, make the dynamic HTML pages static. HTML pages will be stored in the user's browser, therefore reducing the pressure for the database. Modern language and tools, such as AngularJS & Vue.js are all implemented in this mannar. 
-  The client would ask the server whether the resources have been updated since a specific time, and if it receives a 304 code indicating no update, it will directly fetch the cache from the browser. However, this still requires some communication between the server and client. We can completely get rid of this by manually configure our program, and in a specific time period we allocated, the browser will directly ask its cache without querying the server.
+* To further optimize the system's performance, make the **dynamic HTML pages static**. HTML pages can be stored in the user's browser, therefore decreasing the queries to the database. Modern language and tools, such as AngularJS and Vue.js are all implemented in this mannar. <br/><br/>
+  The client would ask the server whether data have been updated since a specific time, and upon receiving a 304 code indicating no update, it will directly fetch the cache from the browser. <br/> <br/>
+  However, this still requires some communication between the server and client. We can completely get rid of this by manually configure our program such that the browser will directly ask its cache without querying the server in a specific time period we allocated.<br/>
   
-* During load test, products are being oversold. That is, inside the database, remaining stock in warehouse of the products became negative. To deal with this problem, check the stock count in database to make sure it is larger than 0 everytime a purchase is made. (When the database is updated by a thread, it will be automatically locked, so race conditions won't happen and we can ignore this part) Also, if one user can purchase no more than one sales product, assign an unique index to the related fields in the database.
+* During load test, products are being **oversold**. That is, inside the database, remaining stock in warehouse of the products became negative. <br/><br/>
+  To deal with this problem, check the stock count in database to make sure it is larger than 0 everytime a purchase is made. (When the database is updated by a thread, it will be automatically locked, so race conditions won't happen and can be ignored)<br/>
 
 
-* Caching improved the system's performance in some degree. However, for an extreme popular e-commerce product sales website, this is not enough. More methods are  needed to further optimize the system by reducing queries to database. This can be done with **Redis**. Make the place order process to be asynchronous. 
-  Install, configure, and integrate RabbitMQ. Implement RabbitMQ sender and receiver.
+* Caching improved the system's performance in some degree. However, for an extreme number of concurrent queries, this is not enough on its own. More methods are  needed to further optimize the system by reducing queries to database. This can be done with **Redis** and **asynchronous programming**. <br/><br/>
 
 
-* **Nginx horizontal scaling：** when the scale of the system increases, expand the service with [Nginx](https://www.nginx.com). With the help of previous optimizations, Nginx provides a powerful tool to expand the system while ensuring performance. <br/>
-  As the system grows even larger, apply (LVS)[http://www.linuxvirtualserver.org] for further scaling.
+* **Nginx horizontal scaling：** when the scale of the system increases, expand the system with [Nginx](https://www.nginx.com).<br/><br/>
+  With the help of previous optimizations, Nginx would provide a powerful tool to expand the system while ensuring performance. <br/><br/>
+  As the system grows even larger, apply (LVS)[http://www.linuxvirtualserver.org] for further scaling.<br/>
   
   
 
@@ -97,28 +100,29 @@ redis-benchmark -h HOST -p PORT -d DATA
   
 ## Optimization Methods
 ### HTML Page Caching, URL Caching & Object Caching
-  1. Fetch cache. If HTML template exist in cache, return.<br/>
-  2. If data does not exist in cache, manually render the HTML templates to client and add them to cache.<br/>
-  3. Return the HTML templates.<br/><br/>
+  1. Fetch cache. If HTML templates exist in cache, return.<br/>
+  2. If data does not exist in cache, add them to cache.<br/>
+  3. Manually render the HTML templates to the client.<br/>
   
-  * Page caching and URL caching are all temporary, that they only exist in cache for a short period of time because the HTML files might be changing. Object caching are however permanent, as the cache is assigned for every single user. 
+  * Page caching and URL caching are all temporary, that they only exist in cache for a short period of time because the HTML files might be updating frequently. Object caching are however permanent, as the cache is assigned to store every single user's data. 
   
 
 ### Staticizing dynamic HTML pages
-  Store the HTML pages inside the user's browsers, therefore reducing the queries to the database. Modern language and tools, such as AngularJS & Vue.js are all implemented in this mannar. <br/>
-  Implement this inside the HTML files with AJAX, and config inside pom.xml.
-  
+  Store the HTML pages inside the user's browsers, therefore reducing the queries to the database.<br/>
+  Implement this inside the HTML files with AJAX, and config inside pom.xml<br/>
+  Modern language and tools, such as AngularJS & Vue.js are all implemented in this mannar. <br/>
+ 
   
 ### Optimization over static resources
   1. Compress CSS and JavaScript files to reduce throughput ([webpack](https://webpack.js.org))<br/>
-  2. Combine multiple JavaScript and CSS files into a single file to reduce connections, otherwise there might be multiple connections for multiple rounds ([Tengine](https://tengine.taobao.org))
-  3. Content Delivery Network ([CDN](https://en.wikipedia.org/wiki/Content_delivery_network)) 
+  2. Combine multiple JavaScript and CSS files into a single file to reduce connections([Tengine](https://tengine.taobao.org))<br/>
+  3. Content Delivery Network caching([CDN](https://en.wikipedia.org/wiki/Content_delivery_network)) 
   
  
-### Optimizing with asynchronous
-  We can further reduce the number of queries to MySQL database using Redis.<br/>
+### Optimizing with asynchronous programming
+  We can further reduce the number of queries to MySQL database using Redis and asynchronous programming (Message Queue with RabbitMQ).<br/>
   1. When the system is initialized, load the stock count of the products into Redis.<br/>
-  2. When an order is placed, reduce stock count in Redis; if there's no stock left, return. In this case, when the stock count stored in Redis is less than 0, all following requests will be directly returned without querying to database.<br/>
+  2. When an order is placed, reduce stock count in Redis; if there's no stock left, return. In this case, when the stock count stored in Redis is less than 0, all following requests will be directly returned without further querying to database.<br/>
   3. Server queries to enter the queue, return to the user that he/she is in the waiting queue.<br/>
   4. Server queries to exit the queue, generate order and decrease stock count asynchronously.<br/>
   5. Server polls the status of the order.
@@ -192,11 +196,6 @@ redis-benchmark -h HOST -p PORT -d DATA
 
 
 
-
-
-## UML
-
-## Interfaces
 
 ## Reference
 * imooc course: https://coding.imooc.com/class/168.html
