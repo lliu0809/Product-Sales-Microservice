@@ -8,6 +8,15 @@ The project also implements functionalities such as cryptographic password prote
 The application is designed in a distributted mannar to benefit futher expansion.<br/><br/>
 To compare the server's performance before and after optimization, the project uses Apache JMeter for load test. <br/><br/>
 
+## Table of Contents
+* [Environments](#snvironments)
+* [Some design thoughts and log](#some_design_thoughts_and_log)
+* [Optimization Methods](#optimization_methods)
+* [Database Design](#database_design)
+* [UML](#uml)
+* [Interfaces](#interfaces)
+* [Reference](#reference)
+
 
 ## Environments
 ### Back-end
@@ -28,7 +37,7 @@ To compare the server's performance before and after optimization, the project u
 * Horizontal extension: [Nginx](https://www.nginx.com)
 
 
-## Some thoughts，design logic & log 
+## Some design thoughts and log 
 * Microservice design pattern: *controller* calls *service*, *service* calls *dao*. <br/>
   Usually a *service* file only calls its own *dao*, if it needs to call the methods from other *dao*'s, call their *service*'s instead. Otherwise, the step of fetching cache (which lies in the *service* files) would be directly skipped. <br/>
   Inside *dao* files, we can directly configure MyBatis without writing seperate XML files with queries.
@@ -78,6 +87,13 @@ redis-benchmark -h HOST -p PORT -d DATA
 * Caching improved the system's performance in some degree. However, for an extreme popular e-commerce product sales website, this is not enough. More methods are  needed to further optimize the system by reducing queries to database. This can be done with **Redis**. Make the place order process to be asynchronous. 
   Install, configure, and integrate RabbitMQ. Implement RabbitMQ sender and receiver.
 
+
+* **Nginx horizontal scaling：** when the scale of the system increases, expand the service with [Nginx](https://www.nginx.com). With the help of previous optimizations, Nginx provides a powerful tool to expand the system while ensuring performance. <br/>
+  As the system grows even larger, apply (LVS)[http://www.linuxvirtualserver.org] for further scaling.
+  
+  
+
+
   
 ## Optimization Methods
 ### HTML Page Caching, URL Caching & Object Caching
@@ -104,18 +120,22 @@ redis-benchmark -h HOST -p PORT -d DATA
   1. When the system is initialized, load the stock count of the products into Redis.<br/>
   2. When an order is placed, reduce stock count in Redis; if there's no stock left, return. In this case, when the stock count stored in Redis is less than 0, all following requests will be directly returned without querying to database.<br/>
   3. Server queries to enter the queue, return to the user that he/she is in the waiting queue.<br/>
-  4. Server queries to exit the queue, generate order and decrease stock count.<br/>
+  4. Server queries to exit the queue, generate order and decrease stock count asynchronously.<br/>
   5. Server polls the status of the order.
+ 
+
+### Optimization on Security:
+  1. Hide the product sales event interface. Every time there's a new sales event, generate a random URL from server rather than keeping a static one.<br/>
+  2. During login time, ask the user to enter a verification code. While preventing boot/robot, this will also extend the period for a user to log in and query for the database, therefore spliting the concurrent queries and reducing the pressure on server side. <br/>  
+  3. Given the QPS for the system, limit the time for the user to query for the server (e.g. login and send verification code) within a specific time period to prevent potential attacks. This can be realized with an interceptor reading on cache data. 
   
-  
-### Nginx horizontal extension
 
 
 ### Database Sharding
   
 
 
-## Database
+## Database Design
 ### User
 | Name | Type | Length | Decimals | Not Null | Comment |
 | --- | --- | --- | --- | --- | --- |
@@ -174,7 +194,7 @@ redis-benchmark -h HOST -p PORT -d DATA
 
 
 
-## UML Graphs for the system
+## UML
 
 ## Interfaces
 
