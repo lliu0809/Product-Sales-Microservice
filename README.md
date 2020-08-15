@@ -12,6 +12,7 @@ Distributed micro-service written in Java to handle high concurrency situations,
 <br/><br/>
 
 
+
 ## Introduction
 For popular e-commerce and online shopping websites, there might be a huge page view in a extreme short period when there's a special event such as product sales.  In this case, the server will be facing a large number of concurrent queries, significantly influencing its performance. <br/><br/>
 This project optimizes the server's performance under such circumstances by applying different caching methods and message queue asynchronous algorithms. <br/><br/>
